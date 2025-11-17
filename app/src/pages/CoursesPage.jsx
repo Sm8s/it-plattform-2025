@@ -1,53 +1,160 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { useAuth } from '../AuthContext';
-
-const FALLBACK_COURSES = [
-  { slug: 'html-basics', title_de: 'HTML Grundlagen', title_en: 'HTML Basics', description_de: 'Baue das Grundgerüst jeder Webseite.', difficulty: 'beginner' },
-  { slug: 'css-basics', title_de: 'CSS Grundlagen', title_en: 'CSS Basics', description_de: 'Lerne Layout, Farben und Responsive Design.', difficulty: 'beginner' },
-  { slug: 'js-basics', title_de: 'JavaScript Grundlagen', title_en: 'JavaScript Basics', description_de: 'Programmiere interaktive Webseiten.', difficulty: 'beginner' },
-  { slug: 'git-basics', title_de: 'Git & Versionierung', title_en: 'Git Basics', description_de: 'Versioniere deinen Code wie ein Profi.', difficulty: 'beginner' },
-  { slug: 'python-basics', title_de: 'Python Grundlagen', title_en: 'Python Basics', description_de: 'Starte mit einer der beliebtesten Sprachen.', difficulty: 'beginner' }
-];
 
 export default function CoursesPage() {
-  const { locale } = useAuth();
-  const [courses, setCourses] = useState(FALLBACK_COURSES);
-  const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [editing, setEditing] = useState(null);
+
+  const load = async () => {
+    const { data } = await supabase
+      .from('courses')
+      .select('*')
+      .order('created_at', { ascending: true });
+    setCourses(data || []);
+  };
 
   useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .eq('is_published', true)
-        .order('created_at', { ascending: true });
-
-      if (!error && data?.length) {
-        setCourses(data);
-      }
-      setLoading(false);
-    };
     load();
   }, []);
 
+  const emptyCourse = {
+    slug: '',
+    title_de: '',
+    title_en: '',
+    description_de: '',
+    description_en: '',
+    difficulty: 'beginner',
+    is_published: true
+  };
+
+  const startNew = () => setEditing(emptyCourse);
+
+  const saveCourse = async e => {
+    e.preventDefault();
+    if (!editing.slug) return;
+    if (editing.id) {
+      await supabase.from('courses').update(editing).eq('id', editing.id);
+    } else {
+      await supabase.from('courses').insert(editing);
+    }
+    setEditing(null);
+    await load();
+  };
+
   return (
-    <main className="section">
-      <h2>Kurse</h2>
-      {loading && <p>Lade Kurse…</p>}
-      <div className="course-grid">
-        {courses.map(course => {
-          const title = locale === 'de' ? course.title_de : course.title_en;
-          return (
-            <Link key={course.slug} to={`/courses/${course.slug}`} className="course-card">
-              <div className="course-chip">{course.difficulty}</div>
-              <h3>{title}</h3>
-              <p style={{ fontSize: '.85rem', opacity: .8 }}>{course.description_de}</p>
-            </Link>
-          );
-        })}
+    <>
+      <div className="card">
+        <h2>Kursverwaltung</h2>
+        <div className="toolbar">
+          <button className="btn btn-primary" onClick={startNew}>
+            Neuen Kurs anlegen
+          </button>
+        </div>
       </div>
-    </main>
+      <div className="card">
+        <h3>Kursliste</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Slug</th>
+              <th>DE Title</th>
+              <th>EN Title</th>
+              <th>Level</th>
+              <th>Veröffentlicht</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {courses.map(c => (
+              <tr key={c.id}>
+                <td>{c.slug}</td>
+                <td>{c.title_de}</td>
+                <td>{c.title_en}</td>
+                <td>{c.difficulty}</td>
+                <td>{c.is_published ? 'Ja' : 'Nein'}</td>
+                <td>
+                  <button className="btn" onClick={() => setEditing(c)}>
+                    Bearbeiten
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && (
+        <div className="card">
+          <h3>Kurs bearbeiten / erstellen</h3>
+          <form onSubmit={saveCourse} style={{ display: 'grid', gap: '.6rem', maxWidth: '600px' }}>
+            <label>
+              <div>Slug</div>
+              <input
+                value={editing.slug}
+                onChange={e => setEditing({ ...editing, slug: e.target.value })}
+                required
+              />
+            </label>
+            <label>
+              <div>Title (DE)</div>
+              <input
+                value={editing.title_de}
+                onChange={e => setEditing({ ...editing, title_de: e.target.value })}
+                required
+              />
+            </label>
+            <label>
+              <div>Title (EN)</div>
+              <input
+                value={editing.title_en}
+                onChange={e => setEditing({ ...editing, title_en: e.target.value })}
+                required
+              />
+            </label>
+            <label>
+              <div>Beschreibung (DE)</div>
+              <textarea
+                value={editing.description_de}
+                onChange={e => setEditing({ ...editing, description_de: e.target.value })}
+              />
+            </label>
+            <label>
+              <div>Beschreibung (EN)</div>
+              <textarea
+                value={editing.description_en}
+                onChange={e => setEditing({ ...editing, description_en: e.target.value })}
+              />
+            </label>
+            <label>
+              <div>Difficulty</div>
+              <select
+                value={editing.difficulty}
+                onChange={e => setEditing({ ...editing, difficulty: e.target.value })}
+              >
+                <option value="beginner">beginner</option>
+                <option value="intermediate">intermediate</option>
+                <option value="advanced">advanced</option>
+              </select>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={editing.is_published}
+                onChange={e => setEditing({ ...editing, is_published: e.target.checked })}
+              />{' '}
+              Veröffentlicht
+            </label>
+            <div>
+              <button className="btn btn-primary" type="submit">
+                Speichern
+              </button>
+              <button className="btn" type="button" onClick={() => setEditing(null)} style={{ marginLeft: '.5rem' }}>
+                Abbrechen
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,164 +1,93 @@
-import React from 'react';
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
-import { t } from './i18n';
+import React, { useEffect, useState } from 'react';
+import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import { supabase } from './supabaseClient';
-
-import LandingPage from './pages/LandingPage';
-import CoursesPage from './pages/CoursesPage';
-import CourseDetailPage from './pages/CourseDetailPage';
-import LessonPage from './pages/LessonPage';
-import CommunityPage from './pages/CommunityPage';
-import ProfilePage from './pages/ProfilePage';
-import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
-import ProjectsPage from './pages/ProjectsPage';
-import AdminPanel from './pages/AdminPanel';
+import UsersPage from './pages/UsersPage';
+import CoursesPage from './pages/CoursesPage';
+import ContentPage from './pages/ContentPage';
+import SettingsPage from './pages/SettingsPage';
+import LogsPage from './pages/LogsPage';
 
-function Layout({ children }) {
-  const { session, locale, setLocale } = useAuth();
+function useAdminAuth() {
+  const [session, setSession] = useState(null);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session || null);
+      setChecking(false);
+    };
+    init();
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  return { session, checking };
+}
+
+function Sidebar() {
+  const location = useLocation();
+  const link = (to, label) => (
+    <Link
+      to={to}
+      style={{
+        background: location.pathname === to ? 'rgba(148,163,184,.2)' : undefined
+      }}
+    >
+      {label}
+    </Link>
+  );
+
   return (
-    <div className="app-shell">
-      <nav>
-        <div className="nav-left">
-          <div className="nav-logo">
-            <Link to="/">{t(locale, 'appName')}</Link>
-          </div>
-          <div
-            className="nav-links"
-            style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}
-          >
-            {session && (
-              <>
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/courses">{t(locale, 'courses')}</Link>
-                <Link to="/projects">Projekte</Link>
-              </>
-            )}
-            <Link to="/community">{t(locale, 'community')}</Link>
-          </div>
-        </div>
-
-        <div className="nav-right">
-          <select
-            value={locale}
-            onChange={e => setLocale(e.target.value)}
-            className="btn"
-          >
-            <option value="de">DE</option>
-            <option value="en">EN</option>
-          </select>
-
-          {session ? (
-            <>
-              <Link to="/profile" className="btn" style={{ marginLeft: '0.5rem' }}>
-                {t(locale, 'profile')}
-              </Link>
-              <button
-                className="btn"
-                style={{ marginLeft: '0.5rem' }}
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  window.location.href = '/auth';
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/auth" className="btn" style={{ marginLeft: '0.5rem' }}>
-              {t(locale, 'login')}
-            </Link>
-          )}
-        </div>
+    <aside className="sidebar">
+      <div className="sidebar-logo">Admin · IT Lernplattform</div>
+      <nav className="sidebar-nav">
+        {link('/', 'Dashboard')}
+        {link('/users', 'Benutzerverwaltung')}
+        {link('/courses', 'Kursverwaltung')}
+        {link('/content', 'Content & Medien')}
+        {link('/logs', 'Audit & Monitoring')}
+        {link('/settings', 'Einstellungen / Theme')}
       </nav>
-
-      {children}
-
-      <footer className="footer">
-        © {new Date().getFullYear()} – IT Lernplattform
-      </footer>
-    </div>
+    </aside>
   );
 }
 
-function ProtectedRoute({ children }) {
-  const { session, loading } = useAuth();
-  if (loading) return <div style={{ padding: '2rem' }}>Loading…</div>;
-  if (!session) return <Navigate to="/auth" replace />;
-  return children;
-}
-
 export default function App() {
+  const { session, checking } = useAdminAuth();
+
+  if (checking) return <div style={{ padding: '2rem' }}>Prüfe Admin-Session…</div>;
+  if (!session) {
+    return (
+      <div style={{ padding: '2rem', color: '#e5e7eb' }}>
+        <h1>Admin Login</h1>
+        <p>Bitte im Supabase Dashboard einen Magic-Link-Login oder Passwort-Login für Admins nutzen.</p>
+        <p>
+          Für ein richtiges Admin-Login kannst du eine spezielle Rolle (z.B. "admin") in der Tabelle
+          <code> user_roles </code> setzen und eine eigene Login-Seite implementieren.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/courses"
-          element={
-            <ProtectedRoute>
-              <CoursesPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/courses/:slug"
-          element={
-            <ProtectedRoute>
-              <CourseDetailPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/courses/:slug/lessons/:lessonId"
-          element={
-            <ProtectedRoute>
-              <LessonPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects"
-          element={
-            <ProtectedRoute>
-              <ProjectsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminPanel />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Layout>
+    <div className="app-shell">
+      <Sidebar />
+      <main className="main">
+        <div className="main-inner">
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/users" element={<UsersPage />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/content" element={<ContentPage />} />
+            <Route path="/logs" element={<LogsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </div>
+      </main>
+    </div>
   );
 }
