@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import ProjectsPage from './pages/ProjectsPage';
+import AdminPanel from './pages/AdminPanel';
 
 function Layout({ children }) {
   const { session, locale, setLocale } = useAuth();
@@ -115,10 +116,18 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/community" element={<CommunityPage />} />
         <Route
           path="/profile"
-          element={
+          element{
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>

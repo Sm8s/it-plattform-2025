@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../supabaseClient';
 
@@ -7,6 +7,7 @@ export default function DashboardPage() {
   const { session, profile } = useAuth();
   const [nextLesson, setNextLesson] = useState(null);
   const [secretClicks, setSecretClicks] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
@@ -30,11 +31,7 @@ export default function DashboardPage() {
     setSecretClicks(prev => {
       const next = prev + 1;
       if (next >= 5) {
-        // Gehe zum Admin-Panel (URL aus .env, sonst Platzhalter)
-        const adminUrl =
-          import.meta.env.VITE_ADMIN_URL ||
-          'https://DEINE-ADMIN-NETLIFY-URL-HIER';
-        window.location.href = adminUrl;
+        navigate('/admin');
         return 0;
       }
       return next;
@@ -66,7 +63,6 @@ export default function DashboardPage() {
           opacity: 0.7
         }}
       >
-        {/* Mini-Logo, unauffällig */}
         <span style={{ fontWeight: 700 }}>◎</span>
       </button>
 
