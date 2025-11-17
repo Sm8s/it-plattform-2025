@@ -1,0 +1,4 @@
+[build]
+  # Default – kannst du pro Site bei Netlify überschreiben
+  command = "npm run build"
+  publish = "dist"
