@@ -12,12 +12,12 @@ export default function AdminPanel() {
     lessons: 0
   });
   const [latestUsers, setLatestUsers] = useState([]);
+  const [activeSection, setActiveSection] = useState('overview');
 
   useEffect(() => {
     const checkRoleAndLoad = async () => {
       if (!session) return;
 
-      // Rolle aus user_roles lesen
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('roles ( key )')
@@ -30,7 +30,6 @@ export default function AdminPanel() {
       setCheckingRole(false);
 
       if (!rolesError) {
-        // Wenn Owner, Stats laden
         const [usersCount, coursesCount, lessonsCount, latest] = await Promise.all([
           supabase.from('profiles').select('id', { count: 'exact', head: true }),
           supabase.from('courses').select('id', { count: 'exact', head: true }),
@@ -71,39 +70,128 @@ export default function AdminPanel() {
   }
 
   return (
-    <main className="section">
-      <h2>Admin-Bereich (integriert)</h2>
-      <p style={{ opacity: .85, maxWidth: '40rem' }}>
-        Dies ist das interne Admin-Panel innerhalb der gleichen App. Der Zugang ist versteckt hinter dem
-        Dashboard-Logo (5 Klicks). Hier kannst du nach und nach alle Admin-Funktionen ausbauen.
-      </p>
+    <main className="section" style={{ paddingTop: 0, paddingBottom: 0 }}>
+      <div className="admin-layout">
+        <aside className="admin-sidebar">
+          <div>
+            <div className="admin-sidebar-title">Admin</div>
+            <div style={{ fontSize: '.9rem', marginTop: '.3rem' }}>Dashboard</div>
+          </div>
 
-      <section className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>
-        <div className="course-grid">
-          <div className="course-card">
-            <h3>Übersicht</h3>
-            <p style={{ fontSize: '.9rem' }}>
-              Nutzer: <strong>{stats.users}</strong>
-              <br />
-              Kurse: <strong>{stats.courses}</strong>
-              <br />
-              Lektionen: <strong>{stats.lessons}</strong>
-            </p>
+          <nav className="admin-sidebar-nav">
+            <button
+              type="button"
+              className={`admin-sidebar-button ${activeSection === 'overview' ? 'active' : ''}`}
+              onClick={() => setActiveSection('overview')}
+            >
+              <span>Übersicht</span>
+              <span style={{ fontSize: '.7rem', opacity: .7 }}>Live</span>
+            </button>
+            <button
+              type="button"
+              className={`admin-sidebar-button ${activeSection === 'users' ? 'active' : ''}`}
+              onClick={() => setActiveSection('users')}
+            >
+              <span>Benutzer</span>
+              <span style={{ fontSize: '.7rem', opacity: .7 }}>{stats.users}</span>
+            </button>
+            <button
+              type="button"
+              className={`admin-sidebar-button ${activeSection === 'courses' ? 'active' : ''}`}
+              onClick={() => setActiveSection('courses')}
+            >
+              <span>Kurse</span>
+              <span style={{ fontSize: '.7rem', opacity: .7 }}>{stats.courses}</span>
+            </button>
+            <button
+              type="button"
+              className={`admin-sidebar-button ${activeSection === 'system' ? 'active' : ''}`}
+              onClick={() => setActiveSection('system')}
+            >
+              <span>System</span>
+              <span style={{ fontSize: '.7rem', opacity: .7 }}>OK</span>
+            </button>
+          </nav>
+
+          <div style={{ fontSize: '.75rem', opacity: .8, marginTop: 'auto' }}>
+            Eingeloggt als
+            <br />
+            <span style={{ fontWeight: 500 }}>{session?.user?.email}</span>
           </div>
-          <div className="course-card">
-            <h3>Letzte Nutzer</h3>
-            <ul style={{ listStyle: 'none', paddingLeft: 0, fontSize: '.85rem' }}>
-              {latestUsers.map(u => (
-                <li key={u.id}>
-                  {u.username || u.id.slice(0, 8)} –{' '}
-                  {new Date(u.created_at).toLocaleDateString()}
-                </li>
-              ))}
-              {!latestUsers.length && <li>Noch keine Nutzer gefunden.</li>}
-            </ul>
+        </aside>
+
+        <section className="admin-main">
+          <div className="admin-header-row">
+            <div>
+              <h2>Admin Dashboard</h2>
+              <p style={{ fontSize: '.85rem', opacity: .8, marginTop: '.15rem' }}>
+                Schneller Überblick über Nutzer, Kurse und Aktivitäten auf der Plattform.
+              </p>
+            </div>
+            <div className="admin-tag">OWNER ACCESS</div>
           </div>
-        </div>
-      </section>
+
+          <div className="admin-card-grid">
+            <article className="admin-card">
+              <h3>Nutzer</h3>
+              <div className="admin-card-value">{stats.users}</div>
+              <div className="admin-card-sub">Registrierte Accounts</div>
+            </article>
+            <article className="admin-card">
+              <h3>Kurse</h3>
+              <div className="admin-card-value">{stats.courses}</div>
+              <div className="admin-card-sub">Verfügbare Kurse</div>
+            </article>
+            <article className="admin-card">
+              <h3>Lektionen</h3>
+              <div className="admin-card-value">{stats.lessons}</div>
+              <div className="admin-card-sub">Gesamtanzahl</div>
+            </article>
+          </div>
+
+          <div className="admin-card-grid">
+            <article className="admin-table-card">
+              <h3 style={{ marginTop: 0, fontSize: '.85rem', textTransform: 'uppercase', letterSpacing: '.12em', opacity: .7 }}>
+                Letzte Nutzer
+              </h3>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Registriert am</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {latestUsers.map(u => (
+                    <tr key={u.id}>
+                      <td>{u.username || u.id.slice(0, 8)}</td>
+                      <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                  {!latestUsers.length && (
+                    <tr>
+                      <td colSpan={2}>Noch keine Nutzer gefunden.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </article>
+
+            <article className="admin-card">
+              <h3>Systemstatus</h3>
+              <div className="admin-card-value" style={{ fontSize: '1.1rem' }}>
+                Online
+              </div>
+              <div className="admin-card-sub" style={{ marginTop: '.4rem' }}>
+                Supabase-Backend aktiv, {stats.users} Nutzer geladen.
+              </div>
+              <p style={{ fontSize: '.75rem', opacity: .8, marginTop: '.6rem' }}>
+                Hier kannst du später Logs, Fehler, Queues oder Cronjobs visualisieren.
+              </p>
+            </article>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

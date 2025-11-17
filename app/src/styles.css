@@ -245,3 +245,144 @@ select {
   color: #e5e7eb;
   padding: .55rem .8rem;
 }
+
+/* ADMIN DASHBOARD LAYOUT (Material-style) */
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: calc(100vh - 72px);
+  margin: -2.4rem -2.4rem 0;
+}
+
+.admin-sidebar {
+  border-right: 1px solid rgba(148,163,184,.25);
+  background: radial-gradient(circle at top left, rgba(56,189,248,.08), rgba(15,23,42,.98));
+  padding: 1.6rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-sidebar-title {
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  opacity: .7;
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  font-size: .85rem;
+}
+
+.admin-sidebar-button {
+  border-radius: .8rem;
+  padding: .45rem .6rem;
+  border: 1px solid transparent;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.admin-sidebar-button.active {
+  background: rgba(15,23,42,.9);
+  border-color: rgba(148,163,184,.4);
+}
+
+.admin-main {
+  padding: 1.8rem 2rem 2.4rem;
+}
+
+.admin-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.admin-header-row h2 {
+  margin: 0;
+}
+
+.admin-tag {
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,.5);
+  padding: .25rem .6rem;
+  font-size: .75rem;
+  opacity: .85;
+}
+
+.admin-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.admin-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(148,163,184,.3);
+  padding: .9rem 1rem;
+  background: rgba(15,23,42,.98);
+}
+
+.admin-card h3 {
+  margin: 0;
+  font-size: .85rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  opacity: .7;
+}
+
+.admin-card-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: .2rem;
+}
+
+.admin-card-sub {
+  font-size: .78rem;
+  opacity: .8;
+  margin-top: .1rem;
+}
+
+/* table */
+
+.admin-table-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(148,163,184,.3);
+  padding: 1rem 1.1rem;
+  background: rgba(15,23,42,.98);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: .4rem .2rem;
+  text-align: left;
+}
+
+.admin-table th {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  opacity: .7;
+  border-bottom: 1px solid rgba(148,163,184,.3);
+}
+
+.admin-table tr:nth-child(even) td {
+  background: rgba(15,23,42,.7);
+}
