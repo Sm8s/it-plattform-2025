@@ -33,6 +33,7 @@ function Layout({ children }) {
             <Link to="/community">{t(locale, 'community')}</Link>
           </div>
         </div>
+
         <div className="nav-right">
           <select
             value={locale}
@@ -42,12 +43,11 @@ function Layout({ children }) {
             <option value="de">DE</option>
             <option value="en">EN</option>
           </select>
+
           {session ? (
-            <>
-              <Link to="/profile" className="btn">
-                {t(locale, 'profile')}
-              </Link>
-            </>
+            <Link to="/profile" className="btn">
+              {t(locale, 'profile')}
+            </Link>
           ) : (
             <Link to="/auth" className="btn">
               {t(locale, 'login')}
@@ -55,9 +55,11 @@ function Layout({ children }) {
           )}
         </div>
       </nav>
+
       {children}
+
       <footer className="footer">
-        © {new Date().getFullYear()} – IT Lernplattform MVP • Built with React, Supabase & Netlify
+        © {new Date().getFullYear()} – IT Lernplattform
       </footer>
     </div>
   );
@@ -65,7 +67,7 @@ function Layout({ children }) {
 
 function ProtectedRoute({ children }) {
   const { session, loading } = useAuth();
-  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: '2rem' }}>Loading…</div>;
   if (!session) return <Navigate to="/auth" replace />;
   return children;
 }
@@ -76,6 +78,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+
         <Route
           path="/dashboard"
           element={
@@ -84,6 +87,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/courses"
           element={
@@ -92,6 +96,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/courses/:slug"
           element={
@@ -100,6 +105,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/courses/:slug/lessons/:lessonId"
           element={
@@ -108,6 +114,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/projects"
           element={
@@ -116,6 +123,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin"
           element={
@@ -124,10 +132,10 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/community" element={<CommunityPage />} />
+
         <Route
           path="/profile"
-          element{
+          element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
