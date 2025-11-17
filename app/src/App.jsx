@@ -2,6 +2,8 @@ import React from 'react';
 import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { t } from './i18n';
+import { supabase } from './supabaseClient';
+
 import LandingPage from './pages/LandingPage';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
@@ -22,7 +24,10 @@ function Layout({ children }) {
           <div className="nav-logo">
             <Link to="/">{t(locale, 'appName')}</Link>
           </div>
-          <div className="nav-links">
+          <div
+            className="nav-links"
+            style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}
+          >
             {session && (
               <>
                 <Link to="/dashboard">Dashboard</Link>
@@ -45,11 +50,23 @@ function Layout({ children }) {
           </select>
 
           {session ? (
-            <Link to="/profile" className="btn">
-              {t(locale, 'profile')}
-            </Link>
+            <>
+              <Link to="/profile" className="btn" style={{ marginLeft: '0.5rem' }}>
+                {t(locale, 'profile')}
+              </Link>
+              <button
+                className="btn"
+                style={{ marginLeft: '0.5rem' }}
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = '/auth';
+                }}
+              >
+                Logout
+              </button>
+            </>
           ) : (
-            <Link to="/auth" className="btn">
+            <Link to="/auth" className="btn" style={{ marginLeft: '0.5rem' }}>
               {t(locale, 'login')}
             </Link>
           )}
