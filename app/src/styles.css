@@ -26,45 +26,83 @@ a {
   flex-direction: column;
 }
 
+/* NAVIGATION */
+
 nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.8rem 1.6rem;
+  padding: 0.8rem 2.4rem;
   border-bottom: 1px solid rgba(148,163,184,.25);
-  background: rgba(15,23,42,.98);
+  background: rgba(15,23,42,.96);
   position: sticky;
   top: 0;
   z-index: 20;
+  backdrop-filter: blur(10px);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
 }
 
 .nav-logo a {
   font-weight: 800;
+  letter-spacing: .03em;
 }
 
+.nav-links {
+  display: flex;
+  gap: 1.7rem;
+  font-size: .9rem;
+}
+
+.nav-links a {
+  opacity: .8;
+}
+
+.nav-links a:hover {
+  opacity: 1;
+}
+
+/* LAYOUT */
+
 .section {
-  padding: 1.6rem 1.6rem 2rem;
+  padding: 2.4rem 2.4rem 3rem;
+}
+
+.section-narrow {
+  max-width: 1120px;
+  margin: 0 auto;
 }
 
 .footer {
-  padding: 1rem 1.6rem 2rem;
+  padding: 1rem 2.4rem 2rem;
   font-size: .8rem;
   opacity: .7;
   margin-top: auto;
   border-top: 1px solid rgba(148,163,184,.2);
-  background: rgba(15,23,42,.98);
+  background: rgba(15,23,42,.96);
 }
 
-/* Buttons */
+/* BUTTONS */
 
 .btn {
   border-radius: 999px;
   border: 1px solid rgba(148,163,184,.4);
-  padding: .4rem .9rem;
+  padding: .45rem 1rem;
   background: rgba(15,23,42,.9);
   color: #e5e7eb;
   font-size: .85rem;
   cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(15,23,42,.6);
+  border-color: rgba(148,163,184,.7);
 }
 
 .btn-primary {
@@ -74,7 +112,101 @@ nav {
   font-weight: 600;
 }
 
-/* Cards / Grid */
+.btn-primary:hover {
+  background: linear-gradient(135deg, #16a34a, #0d9488);
+}
+
+/* HERO / LANDING */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2.5fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero-left h1 {
+  font-size: 2.3rem;
+  line-height: 1.1;
+  margin-bottom: .9rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(56,189,248,.5);
+  background: rgba(15,23,42,.9);
+  font-size: .75rem;
+  margin-bottom: .9rem;
+}
+
+.hero-subtitle {
+  max-width: 34rem;
+  font-size: .95rem;
+  opacity: .9;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  margin-top: 1.3rem;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.4rem;
+  font-size: .8rem;
+  opacity: .9;
+}
+
+.hero-right {
+  justify-self: flex-end;
+}
+
+.hero-card {
+  border-radius: 1.2rem;
+  border: 1px solid rgba(148,163,184,.35);
+  padding: 1.2rem 1.3rem;
+  background: radial-gradient(circle at top left, rgba(56,189,248,.18), rgba(15,23,42,.98));
+  box-shadow: 0 20px 50px rgba(15,23,42,.9);
+  max-width: 360px;
+  font-size: .85rem;
+}
+
+/* Feature Grid */
+
+.feature-grid {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.4rem;
+}
+
+.feature-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(148,163,184,.3);
+  padding: 1rem 1.1rem;
+  background: rgba(15,23,42,.96);
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  margin-bottom: .4rem;
+  font-size: 1rem;
+}
+
+.feature-card p {
+  margin: 0;
+  font-size: .85rem;
+  opacity: .9;
+}
+
+/* Courses / generic cards */
 
 .course-grid {
   display: grid;
@@ -99,4 +231,17 @@ nav {
   border-radius: 999px;
   border: 1px solid rgba(148,163,184,.4);
   opacity: .85;
+}
+
+/* Inputs (Auth, Forms) */
+
+input,
+textarea,
+select {
+  font: inherit;
+  border-radius: .8rem;
+  border: 1px solid rgba(148,163,184,0.6);
+  background: rgba(15,23,42,0.9);
+  color: #e5e7eb;
+  padding: .55rem .8rem;
 }
