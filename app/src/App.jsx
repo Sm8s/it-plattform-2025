@@ -9,6 +9,7 @@ import LessonPage from './pages/LessonPage';
 import CommunityPage from './pages/CommunityPage';
 import ProfilePage from './pages/ProfilePage';
 import AuthPage from './pages/AuthPage';
+import DashboardPage from './pages/DashboardPage';
 
 function Layout({ children }) {
   const { session, locale, setLocale } = useAuth();
@@ -20,7 +21,9 @@ function Layout({ children }) {
             <Link to="/">{t(locale, 'appName')}</Link>
           </div>
           <div className="nav-links">
-            <Link to="/courses">{t(locale, 'courses')}</Link>
+            {session && (
+              <Link to="/courses">{t(locale, 'courses')}</Link>
+            )}
             <Link to="/community">{t(locale, 'community')}</Link>
           </div>
         </div>
@@ -35,6 +38,9 @@ function Layout({ children }) {
           </select>
           {session ? (
             <>
+              <Link to="/dashboard" className="btn">
+                Dashboard
+              </Link>
               <Link to="/profile" className="btn">
                 {t(locale, 'profile')}
               </Link>
@@ -67,8 +73,30 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/courses/:slug" element={<CourseDetailPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses"
+          element={
+            <ProtectedRoute>
+              <CoursesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/courses/:slug"
+          element={
+            <ProtectedRoute>
+              <CourseDetailPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/courses/:slug/lessons/:lessonId"
           element={

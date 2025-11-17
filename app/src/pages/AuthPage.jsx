@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function AuthPage() {
   const { session } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +19,7 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         setMsg('Login erfolgreich.');
+        navigate('/dashboard');
       } else if (mode === 'register') {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
@@ -29,6 +32,7 @@ export default function AuthPage() {
             locale: 'de'
           });
         }
+        navigate('/dashboard');
       } else if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + '/auth'
