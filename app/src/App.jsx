@@ -10,6 +10,7 @@ import CommunityPage from './pages/CommunityPage';
 import ProfilePage from './pages/ProfilePage';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
+import ProjectsPage from './pages/ProjectsPage';
 
 function Layout({ children }) {
   const { session, locale, setLocale } = useAuth();
@@ -22,7 +23,11 @@ function Layout({ children }) {
           </div>
           <div className="nav-links">
             {session && (
-              <Link to="/courses">{t(locale, 'courses')}</Link>
+              <>
+                <Link to="/dashboard">Dashboard</Link>
+                <Link to="/courses">{t(locale, 'courses')}</Link>
+                <Link to="/projects">Projekte</Link>
+              </>
             )}
             <Link to="/community">{t(locale, 'community')}</Link>
           </div>
@@ -38,9 +43,6 @@ function Layout({ children }) {
           </select>
           {session ? (
             <>
-              <Link to="/dashboard" className="btn">
-                Dashboard
-              </Link>
               <Link to="/profile" className="btn">
                 {t(locale, 'profile')}
               </Link>
@@ -102,6 +104,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <LessonPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <ProjectsPage />
             </ProtectedRoute>
           }
         />
