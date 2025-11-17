@@ -4,8 +4,77 @@ import { supabase } from '../supabaseClient';
 import { useAuth } from '../AuthContext';
 
 function MarkdownRenderer({ content }) {
-  // Mini Renderer: ersetzt nur Zeilenumbrüche.
   return <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{content}</div>;
+}
+
+function CodeExercise({ starterCode }) {
+  const [code, setCode] = useState(starterCode || '<h1>Hello World</h1>');
+  const [previewKey, setPreviewKey] = useState(0);
+
+  const runCode = () => {
+    setPreviewKey(prev => prev + 1);
+  };
+
+  return (
+    <section style={{ marginTop: '2rem' }}>
+      <h3>Interaktive Übung</h3>
+      <p style={{ fontSize: '.85rem', opacity: .85, marginBottom: '.5rem' }}>
+        Schreibe deinen Code links und klicke auf "Ausführen", um das Ergebnis rechts zu sehen.
+      </p>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)',
+          gap: '1rem'
+        }}
+      >
+        <div>
+          <div style={{ fontSize: '.8rem', marginBottom: '.3rem' }}>Editor</div>
+          <textarea
+            value={code}
+            onChange={e => setCode(e.target.value)}
+            style={{
+              width: '100%',
+              minHeight: '260px',
+              borderRadius: '.8rem',
+              border: '1px solid rgba(148,163,184,0.6)',
+              background: 'rgba(15,23,42,0.95)',
+              color: '#e5e7eb',
+              fontFamily: 'monospace',
+              fontSize: '.8rem',
+              padding: '.7rem'
+            }}
+          />
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={runCode}
+            style={{ marginTop: '.6rem' }}
+          >
+            Ausführen
+          </button>
+        </div>
+        <div>
+          <div style={{ fontSize: '.8rem', marginBottom: '.3rem' }}>Preview</div>
+          <div
+            style={{
+              borderRadius: '.8rem',
+              overflow: 'hidden',
+              border: '1px solid rgba(148,163,184,0.6)',
+              background: '#fff'
+            }}
+          >
+            <iframe
+              key={previewKey}
+              title="preview"
+              style={{ width: '100%', height: '260px', border: 'none' }}
+              srcDoc={code}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export default function LessonPage() {
@@ -69,6 +138,10 @@ export default function LessonPage() {
     <main className="section">
       <h2>{title}</h2>
       <MarkdownRenderer content={content || "Noch kein Inhalt hinterlegt."} />
+
+      {lesson.exercise_type === 'code' && (
+        <CodeExercise starterCode={lesson.starter_code} />
+      )}
 
       {quizQuestions.length > 0 && (
         <section style={{ marginTop: '2rem' }}>
