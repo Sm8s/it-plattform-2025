@@ -94,6 +94,13 @@ export default function ProfilePage() {
     setSaving(false);
   };
 
+  const progressPercent =
+    progressInfo.completion === 'completed'
+      ? 100
+      : progressInfo.completion === 'in_progress'
+      ? 55
+      : 0;
+
   const progressLabel =
     progressInfo.completion === 'completed'
       ? 'Kurs abgeschlossen'
@@ -107,14 +114,16 @@ export default function ProfilePage() {
         <header className="page-header">
           <h1 className="page-title">Dein Profil</h1>
           <p className="page-subtitle">
-            Passe deine Daten an, sieh deinen Fortschritt und verwalte deine Anmeldung.
+            Alles an einem Ort: persönliche Daten, Lernfortschritt und Anmeldung.
           </p>
         </header>
 
-        <div className="profile-layout">
-          {/* Persönliche Informationen */}
-          <section className="profile-card">
-            <h2>Persönliche Informationen</h2>
+        <div className="profile-columns">
+          {/* Persönliche Daten */}
+          <section className="card">
+            <div className="card-header">
+              <h2 className="card-title">Persönliche Informationen</h2>
+            </div>
 
             <div className="profile-avatar-shell">
               <div className="profile-avatar">
@@ -148,7 +157,13 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="profile-grid-2">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0,1.1fr) minmax(0,1fr)',
+                gap: '0.8rem 1rem',
+              }}
+            >
               <div>
                 <label className="label">Name</label>
                 <input
@@ -169,16 +184,21 @@ export default function ProfilePage() {
             </div>
           </section>
 
-          {/* Fortschritt & Sicherheit */}
+          {/* Fortschritt + Sicherheit */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
-            <section className="profile-card">
-              <h2>Lernfortschritt</h2>
+            <section className="card">
+              <div className="card-header">
+                <h2 className="card-title">Lernfortschritt</h2>
+              </div>
 
-              <p style={{ fontSize: '.8rem', opacity: .8, marginBottom: '.6rem' }}>
-                Überblick über deinen aktuellen Kurs und die letzte Aktivität.
-              </p>
-
-              <div className="profile-grid-2">
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0,1.1fr) minmax(0,1fr)',
+                  gap: '0.8rem 1rem',
+                  marginBottom: '.6rem',
+                }}
+              >
                 <div>
                   <label className="label">Aktueller Kurs</label>
                   <div style={{ fontSize: '.9rem' }}>
@@ -195,34 +215,32 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div style={{ marginTop: '.8rem' }}>
+              <div>
                 <div className="label">Status</div>
                 <div style={{ fontSize: '.85rem', marginBottom: '.2rem' }}>
                   {progressLabel}
                 </div>
                 <div className="profile-progress-bar">
                   <div
-                    className="profile-progress-bar-inner"
-                    style={{
-                      width:
-                        progressInfo.completion === 'completed'
-                          ? '100%'
-                          : progressInfo.completion === 'in_progress'
-                          ? '55%'
-                          : '0%',
-                    }}
+                    className="profile-progress-inner"
+                    style={{ width: `${progressPercent}%` }}
                   />
                 </div>
               </div>
             </section>
 
-            <section className="profile-card">
-              <h2>Sicherheit &amp; Anmeldung</h2>
-              <p style={{ fontSize: '.8rem', opacity: .8, marginBottom: '.6rem' }}>
-                Verwalte deine E-Mail-Adresse. Passwort-Änderung kannst du später hier ergänzen.
-              </p>
+            <section className="card">
+              <div className="card-header">
+                <h2 className="card-title">Sicherheit &amp; Anmeldung</h2>
+              </div>
 
-              <div className="profile-grid-2">
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0,1.3fr)',
+                  gap: '.8rem 1rem',
+                }}
+              >
                 <div>
                   <label className="label">E-Mail</label>
                   <input
@@ -237,7 +255,7 @@ export default function ProfilePage() {
               <div style={{ marginTop: '1rem', display: 'flex', gap: '.6rem' }}>
                 <button
                   type="button"
-                  className="btn"
+                  className="btn btn-primary"
                   style={{ fontSize: '.8rem' }}
                   onClick={handleSave}
                   disabled={saving}
