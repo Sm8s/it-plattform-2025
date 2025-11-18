@@ -5,87 +5,94 @@ import { useAuth } from '../AuthContext';
 export default function LandingPage() {
   const { session } = useAuth();
 
+  const primaryCtaHref = session ? '/dashboard' : '/auth';
+
   return (
-    <main className="section">
-      <div className="section-narrow">
-        <section className="hero">
-          <div className="hero-left">
-            <div className="hero-badge">
-              <span>🚀</span>
-              <span>IT-Lernen direkt im Browser</span>
-            </div>
-            <h1>IT Lernplattform für HTML, CSS, JS &amp; mehr.</h1>
-            <p className="hero-subtitle">
-              Kleine Lektionen, interaktive Übungen, Gamification und Zertifikate. Perfekt für Einsteiger
-              und angehende Fachinformatiker.
-            </p>
+    <main className="landing">
+      <section className="landing-hero">
+        <div className="landing-hero-left">
+          <p className="landing-eyebrow">CodeLearn · Deine IT Lernplattform</p>
+          <h1 className="landing-title">
+            Finde deinen Weg in die IT.
+            <span className="landing-title-accent"> Schritt für Schritt.</span>
+          </h1>
+          <p className="landing-subtitle">
+            Kleine Lektionen, interaktive Aufgaben und echte Projekte – alles in einem modernen Lern‑Dashboard.
+            Perfekt für Einsteiger und angehende Fachinformatiker.
+          </p>
 
-            <div className="hero-actions">
-              {session ? (
-                <Link to="/dashboard" className="btn btn-primary">
-                  Weiterlernen
-                </Link>
-              ) : (
-                <Link to="/auth" className="btn btn-primary">
-                  Jetzt starten
-                </Link>
-              )}
-              <Link to="/courses" className="btn">
-                Alle Kurse ansehen
-              </Link>
-            </div>
-
-            <div className="hero-meta">
-              <span>📚 HTML, CSS, JS, Git, Python</span>
-              <span>🏅 Fortschritt speichern &amp; Achievements</span>
-            </div>
+          <div className="landing-cta-row">
+            <Link to={primaryCtaHref} className="btn landing-btn-primary">
+              {session ? 'Weiter zum Dashboard' : 'Jetzt starten'}
+            </Link>
+            <Link to="/courses" className="btn landing-btn-ghost">
+              Kurse ansehen
+            </Link>
           </div>
 
-          <div className="hero-right">
-            <div className="hero-card">
-              <h3 style={{ marginTop: 0, marginBottom: '.4rem' }}>Dein Lernstand</h3>
-              <p style={{ margin: 0, opacity: .9 }}>
-                Behalte immer im Blick, wo du gerade bist – Kursfortschritt, XP und Badges.
+          <div className="landing-meta-row">
+            <div className="landing-pill">HTML · CSS · JavaScript · Python</div>
+            <div className="landing-metric">
+              <span className="landing-metric-value">50+</span>
+              <span className="landing-metric-label">Lerneinheiten</span>
+            </div>
+            <div className="landing-metric">
+              <span className="landing-metric-value">100%</span>
+              <span className="landing-metric-label">Browserbasiert</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="landing-hero-right">
+          <div className="landing-preview">
+            <div className="landing-preview-header">
+              <span className="landing-preview-pill">Nächste Lektion</span>
+              <span className="landing-preview-status">Dein Fortschritt wird automatisch gespeichert</span>
+            </div>
+            <div className="landing-preview-main">
+              <h2>Was ist HTML?</h2>
+              <p>
+                Lerne, wie Webseiten strukturiert sind, und schreibe deinen ersten eigenen Code direkt im Browser –
+                mit sofortigem Feedback.
               </p>
-              <ul style={{ marginTop: '.7rem', paddingLeft: '1.1rem', fontSize: '.8rem', opacity: .9 }}>
-                <li>Browserbasiertes Coding</li>
-                <li>Quizze &amp; Challenges</li>
-                <li>Community-Fragen &amp; Antworten</li>
-              </ul>
+              <div className="landing-preview-progress">
+                <div className="landing-preview-progress-bar" />
+                <span>1 / 8 Lektionen abgeschlossen</span>
+              </div>
+              <div className="landing-preview-actions">
+                <Link to={primaryCtaHref} className="btn landing-btn-primary">
+                  Lektion öffnen
+                </Link>
+                <span className="landing-preview-hint">Kein Account? Du kannst jederzeit kostenlos starten.</span>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="feature-grid">
-          <article className="feature-card">
-            <h3>Gamification</h3>
-            <p>
-              Verdiene XP, level dich hoch und schalte Achievements frei, während du echte Dev-Skills
-              aufbaust.
-            </p>
-          </article>
-          <article className="feature-card">
-            <h3>Interaktive Übungen</h3>
-            <p>
-              Schreibe Code direkt im Browser, sieh dir die Ausgabe sofort an und lerne durch direktes
-              Feedback.
-            </p>
-          </article>
-          <article className="feature-card">
-            <h3>Community</h3>
-            <p>
-              Stelle Fragen, diskutiere Lösungen und tausche dich mit anderen Lernenden und Mentoren aus.
-            </p>
-          </article>
-          <article className="feature-card">
-            <h3>Dein Tempo</h3>
-            <p>
-              Lerne in deinem eigenen Tempo – die Plattform merkt sich, wo du aufgehört hast, und bringt
-              dich zurück zur nächsten Lektion.
-            </p>
-          </article>
-        </section>
-      </div>
+      <section className="landing-section-grid">
+        <article className="landing-card">
+          <h3>Interaktive Übungen</h3>
+          <p>
+            Löse Aufgaben direkt im Browser, sieh dir Ausgaben sofort an und lerne anhand von praktischen Beispielen,
+            statt nur Theorie zu lesen.
+          </p>
+        </article>
+        <article className="landing-card">
+          <h3>Projekte statt nur Kapitel</h3>
+          <p>
+            Sammle deine Lernprojekte – von kleinen Tools bis zu Mini‑Webseiten – und nutze sie später als Portfolio
+            für Bewerbungen.
+          </p>
+        </article>
+        <article className="landing-card">
+          <h3>Gamification & Motivation</h3>
+          <p>
+            Verdiene XP, level dich hoch und halte deinen Fortschritt in einem klaren Dashboard fest – so bleibst du
+            dauerhaft am Ball.
+          </p>
+        </article>
+      </section>
     </main>
   );
 }
