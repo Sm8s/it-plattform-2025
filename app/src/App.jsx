@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { t } from './i18n';
 import { supabase } from './supabaseClient';
 
-import LandingPage from './pages/LandingPage';
+import ModernItPlatform from './ModernItPlatform';
 import CoursesPage from './pages/CoursesPage';
 import CourseDetailPage from './pages/CourseDetailPage';
 import LessonPage from './pages/LessonPage';
@@ -61,7 +61,7 @@ function Layout({ children }) {
                 style={{ marginLeft: '0.5rem' }}
                 onClick={async () => {
                   await supabase.auth.signOut();
-                  window.location.href = '/auth';
+                  window.location.href = '/';
                 }}
               >
                 Logout
@@ -95,7 +95,7 @@ export default function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<ModernItPlatform />} />
         <Route path="/auth" element={<AuthPage />} />
 
         <Route
