@@ -1,127 +1,259 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../AuthContext';
+import { supabase } from '../supabaseClient';
 
 export default function ProfilePage() {
-  const [preview, setPreview] = useState("https://ui-avatars.com/api/?name=User&background=0f172a&color=22c55e");
+  const { session, profile } = useAuth();
+  const [displayName, setDisplayName] = useState(profile?.username || '');
+  const [gender, setGender] = useState(profile?.gender || '');
+  const [email, setEmail] = useState(session?.user?.email || '');
+  const [avatarPreview, setAvatarPreview] = useState(profile?.avatar_url || '');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [progressInfo, setProgressInfo] = useState({
+    currentCourse: null,
+    lastActivity: null,
+    completion: null,
+  });
 
-  const handleUpload = (e) => {
-    const file = e.target.files?.[0];
+  useEffect(() => {
+    setDisplayName(profile?.username || '');
+    setGender(profile?.gender || '');
+    setAvatarPreview(profile?.avatar_url || '');
+  }, [profile]);
+
+  useEffect(() => {
+    const loadProgress = async () => {
+      if (!session) return;
+
+      const { data, error } = await supabase
+        .from('lesson_progress')
+        .select('status, completed_at, lessons ( title_de )')
+        .eq('user_id', session.user.id)
+        .order('completed_at', { ascending: false })
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        const row = data[0];
+        setProgressInfo({
+          currentCourse: row.lessons?.title_de || null,
+          lastActivity: row.completed_at || null,
+          completion: row.status || null,
+        });
+      }
+    };
+    loadProgress();
+  }, [session]);
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setPreview(ev.target.result);
+    reader.onload = (e) => {
+      setAvatarPreview(e.target?.result || '');
+    };
     reader.readAsDataURL(file);
   };
 
+  const initials = (displayName || email || 'User')
+    .split(' ')
+    .map((p) => p[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+  const handleSave = async () => {
+    if (!session) return;
+
+    setSaving(true);
+    setMessage('');
+
+    const updates = {
+      username: displayName || null,
+      gender: gender || null,
+    };
+
+    const profileId = profile?.id || session.user.id;
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', profileId);
+
+    let authError = null;
+    if (email && email !== session.user.email) {
+      const { error } = await supabase.auth.updateUser({ email });
+      authError = error;
+    }
+
+    if (profileError || authError) {
+      setMessage('Konnte Änderungen nicht komplett speichern.');
+    } else {
+      setMessage('Profil wurde gespeichert.');
+    }
+    setSaving(false);
+  };
+
+  const progressLabel =
+    progressInfo.completion === 'completed'
+      ? 'Kurs abgeschlossen'
+      : progressInfo.completion === 'in_progress'
+      ? 'Kurs läuft'
+      : 'Noch kein Fortschritt gespeichert';
+
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 p-6 md:p-10 text-slate-900 dark:text-slate-100">
-      <div className="max-w-5xl mx-auto rounded-2xl bg-white/10 backdrop-blur-xl shadow-xl p-6 md:p-10 border border-white/10">
-        <h1 className="text-3xl font-bold mb-6">Dein Profil</h1>
+    <main className="section">
+      <div className="section-narrow">
+        <header className="page-header">
+          <h1 className="page-title">Dein Profil</h1>
+          <p className="page-subtitle">
+            Passe deine Daten an, sieh deinen Fortschritt und verwalte deine Anmeldung.
+          </p>
+        </header>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="profile-layout">
           {/* Persönliche Informationen */}
-          <div className="p-5 bg-slate-800/40 rounded-xl shadow-lg border border-white/10">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
-              Persönliche Informationen
-            </h2>
+          <section className="profile-card">
+            <h2>Persönliche Informationen</h2>
 
-            {/* Profilbild */}
-            <div className="flex flex-col items-center">
-              <div className="relative">
-                <img
-                  src={preview}
-                  className="h-32 w-32 rounded-full object-cover border-2 border-slate-700 shadow-xl hover:scale-105 transition"
-                />
+            <div className="profile-avatar-shell">
+              <div className="profile-avatar">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar" />
+                ) : (
+                  <span>{initials}</span>
+                )}
                 <button
-                  onClick={() => document.getElementById("avatarUpload").click()}
-                  className="absolute bottom-1 right-1 bg-slate-900 p-2 rounded-full border border-emerald-400 shadow-md hover:scale-110 transition"
+                  type="button"
+                  className="profile-avatar-button"
+                  onClick={() => document.getElementById('avatarUpload')?.click()}
                 >
-                  📸
+                  Bild ändern
                 </button>
+                <input
+                  id="avatarUpload"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleAvatarChange}
+                />
               </div>
-
-              <input
-                id="avatarUpload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleUpload}
-              />
+              <div className="profile-meta-row">
+                <span className="profile-chip">
+                  {displayName || 'Noch kein Name gesetzt'}
+                </span>
+                <span className="profile-chip">
+                  {gender || 'Geschlecht nicht angegeben'}
+                </span>
+              </div>
             </div>
 
-            <label className="block mt-5 text-xs uppercase tracking-wider text-slate-400">Name</label>
-            <input
-              type="text"
-              placeholder="Max Mustermann"
-              className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 focus:ring-2 focus:ring-emerald-400 transition"
-            />
-
-            <label className="block mt-4 text-xs uppercase tracking-wider text-slate-400">Geschlecht</label>
-            <select className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 focus:ring-2 focus:ring-emerald-400 transition">
-              <option>Bitte auswählen</option>
-              <option>Weiblich</option>
-              <option>Männlich</option>
-              <option>Divers</option>
-              <option>Keine Angabe</option>
-            </select>
-          </div>
+            <div className="profile-grid-2">
+              <div>
+                <label className="label">Name</label>
+                <input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Dein Anzeige-Name"
+                />
+              </div>
+              <div>
+                <label className="label">Geschlecht</label>
+                <select value={gender} onChange={(e) => setGender(e.target.value)}>
+                  <option value="">Keine Angabe</option>
+                  <option value="female">Weiblich</option>
+                  <option value="male">Männlich</option>
+                  <option value="diverse">Divers</option>
+                </select>
+              </div>
+            </div>
+          </section>
 
           {/* Fortschritt & Sicherheit */}
-          <div className="md:col-span-2 space-y-8">
-            {/* Lernfortschritt */}
-            <div className="p-5 bg-slate-800/40 rounded-xl shadow-lg border border-white/10">
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
-                Lernfortschritt
-              </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+            <section className="profile-card">
+              <h2>Lernfortschritt</h2>
 
-              <p className="text-sm font-medium">Aktueller Kurs:</p>
-              <p className="text-lg font-semibold mt-1">JavaScript Grundlagen</p>
-
-              <div className="mt-3 h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full w-2/3 bg-gradient-to-r from-emerald-400 to-cyan-400 animate-pulse"></div>
-              </div>
-
-              <p className="mt-2 text-xs text-slate-400">
-                67% abgeschlossen – weiter so!
+              <p style={{ fontSize: '.8rem', opacity: .8, marginBottom: '.6rem' }}>
+                Überblick über deinen aktuellen Kurs und die letzte Aktivität.
               </p>
 
-              <p className="mt-4 text-sm font-medium">Letzte Aktivität:</p>
-              <p className="mt-1 text-slate-300">
-                Heute, 10:24 Uhr – Quiz „Variablen & Datentypen“
-              </p>
-            </div>
-
-            {/* Sicherheit */}
-            <div className="p-5 bg-slate-800/40 rounded-xl shadow-lg border border-white/10">
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">
-                Sicherheit & Anmeldung
-              </h2>
-
-              <label className="block text-xs uppercase tracking-wider text-slate-400">E-Mail</label>
-              <input
-                type="email"
-                placeholder="du@example.com"
-                className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 focus:ring-2 focus:ring-emerald-400 transition"
-              />
-
-              <label className="block mt-4 text-xs uppercase tracking-wider text-slate-400">Passwort</label>
-              <input
-                type="password"
-                placeholder="••••••••••"
-                className="mt-1 w-full px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 focus:ring-2 focus:ring-emerald-400 transition"
-              />
-
-              <div className="mt-5 flex gap-3">
-                <button className="px-4 py-2 rounded-full bg-slate-900 border border-slate-500 text-sm hover:bg-slate-800 transition">
-                  Sicherheit prüfen
-                </button>
-                <button className="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-900 font-semibold text-sm hover:shadow-lg hover:-translate-y-0.5 transition">
-                  Änderungen speichern
-                </button>
+              <div className="profile-grid-2">
+                <div>
+                  <label className="label">Aktueller Kurs</label>
+                  <div style={{ fontSize: '.9rem' }}>
+                    {progressInfo.currentCourse || 'Noch kein Kurs gestartet'}
+                  </div>
+                </div>
+                <div>
+                  <label className="label">Letzte Aktivität</label>
+                  <div style={{ fontSize: '.9rem' }}>
+                    {progressInfo.lastActivity
+                      ? new Date(progressInfo.lastActivity).toLocaleString()
+                      : 'Keine Aktivität vorhanden'}
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <div style={{ marginTop: '.8rem' }}>
+                <div className="label">Status</div>
+                <div style={{ fontSize: '.85rem', marginBottom: '.2rem' }}>
+                  {progressLabel}
+                </div>
+                <div className="profile-progress-bar">
+                  <div
+                    className="profile-progress-bar-inner"
+                    style={{
+                      width:
+                        progressInfo.completion === 'completed'
+                          ? '100%'
+                          : progressInfo.completion === 'in_progress'
+                          ? '55%'
+                          : '0%',
+                    }}
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="profile-card">
+              <h2>Sicherheit &amp; Anmeldung</h2>
+              <p style={{ fontSize: '.8rem', opacity: .8, marginBottom: '.6rem' }}>
+                Verwalte deine E-Mail-Adresse. Passwort-Änderung kannst du später hier ergänzen.
+              </p>
+
+              <div className="profile-grid-2">
+                <div>
+                  <label className="label">E-Mail</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="deine@mail.de"
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '.6rem' }}>
+                <button
+                  type="button"
+                  className="btn"
+                  style={{ fontSize: '.8rem' }}
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? 'Speichere…' : 'Änderungen speichern'}
+                </button>
+                {message && (
+                  <div style={{ fontSize: '.8rem', opacity: .85, alignSelf: 'center' }}>
+                    {message}
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
