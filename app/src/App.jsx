@@ -14,12 +14,7 @@ import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import ProjectsPage from './pages/ProjectsPage';
 import AdminPanel from './pages/AdminPanel';
-import React from "react";
-import ModernItPlatform from "./ModernItPlatform";
 
-export default function App() {
-  return <ModernItPlatform />;
-}
 
 
 function Layout({ children }) {
