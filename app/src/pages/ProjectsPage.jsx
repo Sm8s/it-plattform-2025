@@ -144,7 +144,7 @@ export default function ProjectsPage() {
                   <input
                     value={demoUrl}
                     onChange={(e) => setDemoUrl(e.target.value)}
-                    placeholder="https://dein-projekt.netlify.app"
+                    placeholder="https://dein-projekt.vercel.app"
                   />
                 </div>
               </div>
