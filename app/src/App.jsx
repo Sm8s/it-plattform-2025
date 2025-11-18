@@ -24,7 +24,7 @@ function Layout({ children }) {
       <nav>
         <div className="nav-left">
           <div className="nav-logo">
-            <Link to="/">{t(locale, 'appName')}</Link>
+            <Link to={session ? '/dashboard' : '/'}>{t(locale, 'appName')}</Link>
           </div>
           <div
             className="nav-links"
@@ -61,7 +61,7 @@ function Layout({ children }) {
                 style={{ marginLeft: '0.5rem' }}
                 onClick={async () => {
                   await supabase.auth.signOut();
-                  window.location.href = '/auth';
+                  window.location.href = '/';
                 }}
               >
                 Logout
@@ -91,11 +91,18 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function PublicRoute({ children }) {
+  const { session, loading } = useAuth();
+  if (loading) return <div style={{ padding: '2rem' }}>Loading…</div>;
+  if (session) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 export default function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
         <Route path="/auth" element={<AuthPage />} />
 
         <Route

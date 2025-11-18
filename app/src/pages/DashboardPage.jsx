@@ -6,7 +6,6 @@ import { supabase } from '../supabaseClient';
 export default function DashboardPage() {
   const { session, profile } = useAuth();
   const [nextLesson, setNextLesson] = useState(null);
-  const [secretClicks, setSecretClicks] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,96 +26,135 @@ export default function DashboardPage() {
     load();
   }, [session]);
 
+  const displayName = profile?.username || session?.user?.email || 'Lernender';
+
+  const level = profile?.level ?? 1;
+  const xp = profile?.xp ?? 0;
+
   const handleSecretLogoClick = () => {
-    setSecretClicks(prev => {
-      const next = prev + 1;
-      if (next >= 5) {
-        navigate('/admin');
-        return 0;
-      }
-      return next;
-    });
+    // kleines Easter Egg: 5x klicken öffnet Admin
+    navigate('/admin');
   };
 
   return (
-    <main className="section" style={{ position: 'relative' }}>
+    <main className="section dashboard-page">
       {/* kleines verstecktes Logo oben rechts */}
       <button
         type="button"
         onClick={handleSecretLogoClick}
         aria-label="Admin Panel"
-        style={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          width: '28px',
-          height: '28px',
-          borderRadius: '999px',
-          border: '1px solid rgba(148,163,184,.5)',
-          background:
-            'radial-gradient(circle at 30% 0%, rgba(56,189,248,.5), rgba(15,23,42,1))',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '0.8rem',
-          cursor: 'pointer',
-          opacity: 0.7
-        }}
+        className="dashboard-orb-button"
       >
-        <span style={{ fontWeight: 700 }}>◎</span>
+        <span>◎</span>
       </button>
 
-      <h2>Dein Dashboard</h2>
-      <p style={{ opacity: .85 }}>
-        Willkommen zurück{profile?.username ? `, ${profile.username}` : ''}! Hier ist dein Überblick.
-      </p>
+      <section className="dashboard-hero">
+        <div className="dashboard-hero-main">
+          <p className="dashboard-eyebrow">Willkommen zurück</p>
+          <h1 className="dashboard-title">Hi, {displayName}!</h1>
+          <p className="dashboard-subtitle">
+            Deine persönliche Startseite – behalte deinen Lernfortschritt im Blick und starte direkt in die
+            nächste Session.
+          </p>
 
-      <div className="course-grid" style={{ marginTop: '1.5rem' }}>
-        <div className="course-card">
-          <h3>Lernen fortsetzen</h3>
+          <div className="dashboard-hero-actions">
+            <Link to="/courses" className="btn btn-primary">
+              Weiterlernen
+            </Link>
+            <Link to="/projects" className="btn">
+              Deine Projekte
+            </Link>
+          </div>
+
+          <div className="dashboard-hero-meta">
+            <div className="dashboard-meta-item">
+              <span className="dashboard-meta-label">Level</span>
+              <span className="dashboard-meta-value">{level}</span>
+              <span className="dashboard-meta-description">Steige durch abgeschlossene Lektionen auf.</span>
+            </div>
+            <div className="dashboard-meta-item">
+              <span className="dashboard-meta-label">Erfahrungspunkte</span>
+              <span className="dashboard-meta-value">{xp}</span>
+              <span className="dashboard-meta-description">XP sammelst du durch Kurse, Quizze und Projekte.</span>
+            </div>
+            <div className="dashboard-meta-item">
+              <span className="dashboard-meta-label">Nächster Schritt</span>
+              <span className="dashboard-meta-value">
+                {nextLesson ? nextLesson.title_de || nextLesson.title_en : 'Noch kein Kurs gestartet'}
+              </span>
+              <span className="dashboard-meta-description">
+                Wähle einen Kurs aus oder setze dort fort, wo du aufgehört hast.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <aside className="dashboard-hero-card">
+          <h2>Nächste Lektion</h2>
           {nextLesson ? (
             <>
-              <p style={{ fontSize: '.9rem' }}>
-                Nächste Lektion: <strong>{nextLesson.title_de}</strong>
+              <p className="dashboard-hero-card-text">
+                Als nächstes steht an:
               </p>
-              <Link to="/courses" className="btn btn-primary">
-                Zu den Kursen
+              <p className="dashboard-hero-card-title">
+                {nextLesson.title_de || nextLesson.title_en}
+              </p>
+              <p className="dashboard-hero-card-text">
+                Öffne den Kurs und arbeite die Lektion in deinem Tempo durch – dein Fortschritt wird automatisch
+                gespeichert.
+              </p>
+              <Link to="/courses" className="btn btn-primary" style={{ marginTop: '0.8rem' }}>
+                Lektion öffnen
               </Link>
             </>
           ) : (
             <>
-              <p style={{ fontSize: '.9rem' }}>
-                Du hast noch keinen Kurs gestartet. Wähle einen Kurs aus, um zu beginnen.
+              <p className="dashboard-hero-card-text">
+                Du hast noch keinen Kurs gestartet. Such dir einen Bereich aus, der dich interessiert, und leg los.
               </p>
-              <Link to="/courses" className="btn btn-primary">
-                Kurse ansehen
+              <ul className="dashboard-hero-list">
+                <li>HTML &amp; CSS – Grundlagen fürs Web</li>
+                <li>JavaScript Basics – interaktive Seiten</li>
+                <li>Python – Skripte, Automatisierung &amp; mehr</li>
+              </ul>
+              <Link to="/courses" className="btn btn-primary" style={{ marginTop: '0.8rem' }}>
+                Kurse entdecken
               </Link>
             </>
           )}
-        </div>
+        </aside>
+      </section>
 
-        <div className="course-card">
-          <h3>Dein Fortschritt</h3>
-          <p style={{ fontSize: '.9rem' }}>
-            XP: <strong>{profile?.xp ?? 0}</strong>
-            <br />
-            Level: <strong>{profile?.level ?? 1}</strong>
+      <section className="dashboard-grid">
+        <article className="dashboard-card">
+          <h2>Deine Lernreise</h2>
+          <p>
+            Diese Plattform ist darauf ausgelegt, dir viele kleine, machbare Schritte zu geben – statt dich mit
+            riesigen Kursblöcken zu erschlagen.
           </p>
-          <Link to="/profile" className="btn">
-            Profil anzeigen
-          </Link>
-        </div>
+          <ul className="dashboard-list">
+            <li>Kurze Lektionen mit klaren Zielen</li>
+            <li>Direktes Feedback durch Quizzes &amp; Aufgaben</li>
+            <li>Fortschritt wird automatisch gespeichert</li>
+          </ul>
+        </article>
 
-        <div className="course-card">
-          <h3>Community</h3>
-          <p style={{ fontSize: '.9rem' }}>
-            Tausche dich mit anderen Lernenden aus, stelle Fragen und teile Lösungen.
+        <article className="dashboard-card">
+          <h2>Community &amp; Projekte</h2>
+          <p>
+            Lerne nicht allein: teile Fragen, Projekte und Lösungen mit anderen – oder nutze die Plattform einfach
+            als persönliches Lern-Log.
           </p>
-          <Link to="/community" className="btn">
-            Zum Forum
-          </Link>
-        </div>
-      </div>
+          <div className="dashboard-card-actions">
+            <Link to="/community" className="btn">
+              Zur Community
+            </Link>
+            <Link to="/projects" className="btn">
+              Projekte ansehen
+            </Link>
+          </div>
+        </article>
+      </section>
     </main>
   );
 }
