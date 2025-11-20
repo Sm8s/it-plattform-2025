@@ -3,18 +3,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@layer base {
-  body {
-    @apply bg-gray-100 text-gray-900;
-  }
-}
-@layer components {
-  .btn {
-    @apply px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600;
-  }
-}
-@layer utilities {
-  .text-shadow {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  }
-}
