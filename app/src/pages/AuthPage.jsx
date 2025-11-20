@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 
 export default function AuthPage() {
   const { session } = useAuth();
@@ -10,6 +10,10 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState('');
+
+  if (session) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleSubmit = async e => {
     e.preventDefault();
