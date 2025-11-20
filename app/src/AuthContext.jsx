@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "./supabaseClient";
 
 const AuthContext = createContext(null);
 
@@ -7,11 +7,17 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [locale, setLocale] = useState('de');
+  const [locale, setLocale] = useState("de");
 
   useEffect(() => {
-    const currentLocale = navigator.language?.startsWith('de') ? 'de' : 'en';
+    const currentLocale = navigator.language?.startsWith("de") ? "de" : "en";
     setLocale(currentLocale);
+
+    // Wenn Supabase nicht konfiguriert ist, einfach als "nicht eingeloggt"
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
 
     const loadSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -20,9 +26,11 @@ export function AuthProvider({ children }) {
     };
     loadSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
 
     return () => {
       listener.subscription.unsubscribe();
@@ -30,16 +38,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (!supabase) return;
+
     const loadProfile = async () => {
       if (!session) {
         setProfile(null);
         return;
       }
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
         .maybeSingle();
+
       if (!error) setProfile(data);
     };
     loadProfile();
