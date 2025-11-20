@@ -1,18 +1,23 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import { supabase } from "./supabaseClient";
 
 import ModernItPlatform from "./ModernItPlatform";
+import DashboardPage from "./pages/DashboardPage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import LessonPage from "./pages/LessonPage";
+import ProjectsPage from "./pages/ProjectsPage";
 import CommunityPage from "./pages/CommunityPage";
 import ProfilePage from "./pages/ProfilePage";
-import AuthPage from "./pages/AuthPage";
-import DashboardPage from "./pages/DashboardPage";
-import ProjectsPage from "./pages/ProjectsPage";
 import AdminPanel from "./pages/AdminPanel";
+import AuthPage from "./pages/AuthPage";
+import LandingPage from "./pages/LandingPage";
 
+/* -------------------------------------------
+   ProtectedRoute
+------------------------------------------- */
 function ProtectedRoute({ children }) {
   const { session, loading } = useAuth();
   if (loading) return <div style={{ padding: "2rem" }}>Loading…</div>;
@@ -20,6 +25,9 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+/* -------------------------------------------
+   PublicRoute (nur für Gäste)
+------------------------------------------- */
 function PublicRoute({ children }) {
   const { session, loading } = useAuth();
   if (loading) return <div style={{ padding: "2rem" }}>Loading…</div>;
@@ -27,36 +35,36 @@ function PublicRoute({ children }) {
   return children;
 }
 
+/* -------------------------------------------
+   Layout (Navbar + Footer)
+------------------------------------------- */
 function Layout({ children }) {
   const { session, locale, setLocale } = useAuth();
 
   return (
-    <div className="app-shell">
-      <nav>
-        <div className="nav-left">
-          <div className="nav-logo">
-            <Link to={session ? '/dashboard' : '/'}>{t(locale, 'appName')}</Link>
-          </div>
-          <div
-            className="nav-links"
-            style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}
-          >
-            {session && (
-              <>
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/courses">{t(locale, 'courses')}</Link>
-                <Link to="/projects">Projekte</Link>
-              </>
-            )}
-            <Link to="/community">{t(locale, 'community')}</Link>
-          </div>
+    <div>
+      {/* NAV */}
+      <nav className="nav">
+        <div className="nav-logo">
+          <Link to={session ? "/dashboard" : "/"}>IT Lernplattform</Link>
+        </div>
+
+        <div className="nav-center">
+          {session && (
+            <>
+              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/courses">Kurse</Link>
+              <Link to="/projects">Projekte</Link>
+              <Link to="/community">Community</Link>
+            </>
+          )}
         </div>
 
         <div className="nav-right">
           <select
+            className="btn"
             value={locale}
             onChange={(e) => setLocale(e.target.value)}
-            className="btn"
           >
             <option value="de">DE</option>
             <option value="en">EN</option>
@@ -64,23 +72,24 @@ function Layout({ children }) {
 
           {session ? (
             <>
-              <a href="/profile" className="btn">Profil</a>
+              <Link className="btn" to="/profile">Profil</Link>
               <button
                 className="btn"
                 onClick={async () => {
                   await supabase.auth.signOut();
-                  window.location.href = '/';
+                  window.location.href = "/";
                 }}
               >
                 Logout
               </button>
             </>
           ) : (
-            <a href="/auth" className="btn">Login</a>
+            <Link className="btn" to="/auth">Login</Link>
           )}
         </div>
       </nav>
 
+      {/* PAGE CONTENT */}
       {children}
 
       <footer className="footer">
@@ -90,44 +99,28 @@ function Layout({ children }) {
   );
 }
 
-function ProtectedRoute({ children }) {
-  const { session, loading } = useAuth();
-  if (loading) return <div style={{ padding: '2rem' }}>Loading…</div>;
-  if (!session) return <Navigate to="/auth" replace />;
-  return children;
-}
-
-function PublicRoute({ children }) {
-  const { session, loading } = useAuth();
-  if (loading) return <div style={{ padding: '2rem' }}>Loading…</div>;
-  if (session) return <Navigate to="/dashboard" replace />;
-  return children;
-}
-
+/* -------------------------------------------
+   App-Komponente
+------------------------------------------- */
 export default function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
-        <Route path="/auth" element={<AuthPage />} />
 
-        {/* Landing page only for guests */}
+        {/* Landing nur für Gäste */}
         <Route
           path="/"
           element={
             <PublicRoute>
-              <ModernItPlatform />
+              <LandingPage />
             </PublicRoute>
           }
         />
 
-        {/* Login / Register */}
-        <Route
-          path="/auth"
-          element={<AuthPage />}
-        />
+        {/* Login */}
+        <Route path="/auth" element={<AuthPage />} />
 
-        {/* Dashboard */}
+        {/* Dashboard für eingeloggte User */}
         <Route
           path="/dashboard"
           element={
@@ -137,18 +130,7 @@ export default function App() {
           }
         />
 
-        {/* Profile */}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        
-
-        {/* Courses */}
+        {/* Kurse */}
         <Route
           path="/courses"
           element={
@@ -157,7 +139,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/courses/:slug"
           element={
@@ -166,7 +147,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/courses/:slug/lessons/:lessonId"
           element={
@@ -196,6 +176,16 @@ export default function App() {
           }
         />
 
+        {/* Profil */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Admin */}
         <Route
           path="/admin"
@@ -205,7 +195,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
     </Layout>
   );
