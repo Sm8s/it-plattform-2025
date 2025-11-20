@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabaseClient";
 
-import ModernItPlatform from "./ModernItPlatform";
+// Seiten
 import DashboardPage from "./pages/DashboardPage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
@@ -16,11 +16,22 @@ import AuthPage from "./pages/AuthPage";
 import LandingPage from "./pages/LandingPage";
 
 /* -------------------------------------------
+   Loader
+------------------------------------------- */
+function LoadingScreen() {
+  return (
+    <div style={{ padding: "2rem", textAlign: "center" }}>
+      Lade Plattform…
+    </div>
+  );
+}
+
+/* -------------------------------------------
    ProtectedRoute
 ------------------------------------------- */
 function ProtectedRoute({ children }) {
   const { session, loading } = useAuth();
-  if (loading) return <div style={{ padding: "2rem" }}>Loading…</div>;
+  if (loading) return <LoadingScreen />;
   if (!session) return <Navigate to="/auth" replace />;
   return children;
 }
@@ -30,7 +41,7 @@ function ProtectedRoute({ children }) {
 ------------------------------------------- */
 function PublicRoute({ children }) {
   const { session, loading } = useAuth();
-  if (loading) return <div style={{ padding: "2rem" }}>Loading…</div>;
+  if (loading) return <LoadingScreen />;
   if (session) return <Navigate to="/dashboard" replace />;
   return children;
 }
@@ -42,8 +53,8 @@ function Layout({ children }) {
   const { session, locale, setLocale } = useAuth();
 
   return (
-    <div>
-      {/* NAV */}
+    <div className="app-shell">
+      {/* NAVBAR */}
       <nav className="nav">
         <div className="nav-logo">
           <Link to={session ? "/dashboard" : "/"}>IT Lernplattform</Link>
@@ -72,7 +83,9 @@ function Layout({ children }) {
 
           {session ? (
             <>
-              <Link className="btn" to="/profile">Profil</Link>
+              <Link className="btn" to="/profile">
+                Profil
+              </Link>
               <button
                 className="btn"
                 onClick={async () => {
@@ -84,14 +97,17 @@ function Layout({ children }) {
               </button>
             </>
           ) : (
-            <Link className="btn" to="/auth">Login</Link>
+            <Link className="btn" to="/auth">
+              Login
+            </Link>
           )}
         </div>
       </nav>
 
-      {/* PAGE CONTENT */}
+      {/* SEITENINHALT */}
       {children}
 
+      {/* FOOTER */}
       <footer className="footer">
         © {new Date().getFullYear()} – IT Lernplattform
       </footer>
@@ -106,7 +122,6 @@ export default function App() {
   return (
     <Layout>
       <Routes>
-
         {/* Landing nur für Gäste */}
         <Route
           path="/"
@@ -118,9 +133,16 @@ export default function App() {
         />
 
         {/* Login */}
-        <Route path="/auth" element={<AuthPage />} />
+        <Route
+          path="/auth"
+          element={
+            <PublicRoute>
+              <AuthPage />
+            </PublicRoute>
+          }
+        />
 
-        {/* Dashboard für eingeloggte User */}
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -195,6 +217,9 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Fallback – unbekannte URL */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
   );
