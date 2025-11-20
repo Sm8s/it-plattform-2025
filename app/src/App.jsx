@@ -3,16 +3,17 @@ import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabaseClient";
 
-import DashboardPage from "./pages/DashboardPage";
-import CoursesPage from "./pages/CoursesPage";
-import CourseDetailPage from "./pages/CourseDetailPage";
-import LessonPage from "./pages/LessonPage";
-import ProjectsPage from "./pages/ProjectsPage";
-import CommunityPage from "./pages/CommunityPage";
-import ProfilePage from "./pages/ProfilePage";
-import AdminPanel from "./pages/AdminPanel";
-import AuthPage from "./pages/AuthPage";
-import LandingPage from "./pages/LandingPage";
+// Lazy-loaded Seiten (Code-Splitting für bessere Performance)
+const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
+const CoursesPage = React.lazy(() => import("./pages/CoursesPage"));
+const CourseDetailPage = React.lazy(() => import("./pages/CourseDetailPage"));
+const LessonPage = React.lazy(() => import("./pages/LessonPage"));
+const ProjectsPage = React.lazy(() => import("./pages/ProjectsPage"));
+const CommunityPage = React.lazy(() => import("./pages/CommunityPage"));
+const ProfilePage = React.lazy(() => import("./pages/ProfilePage"));
+const AdminPanel = React.lazy(() => import("./pages/AdminPanel"));
+const AuthPage = React.lazy(() => import("./pages/AuthPage"));
+const LandingPage = React.lazy(() => import("./pages/LandingPage"));
 
 /* -------------------------------------------
    Loader
@@ -46,10 +47,33 @@ function PublicRoute({ children }) {
 }
 
 /* -------------------------------------------
-   Layout (Navbar + Footer)
+   Layout (Navbar + Footer + Theme)
 ------------------------------------------- */
 function Layout({ children }) {
   const { session, locale, setLocale } = useAuth();
+  const [theme, setTheme] = React.useState(() => {
+    if (typeof window === "undefined") return "dark";
+    return localStorage.getItem("theme") === "light" ? "light" : "dark";
+  });
+
+  React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.body.classList.toggle("theme-light", theme === "light");
+    document.body.classList.toggle("theme-dark", theme === "dark");
+    document.documentElement.style.setProperty(
+      "color-scheme",
+      theme === "light" ? "light" : "dark"
+    );
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   return (
     <div className="app-shell">
@@ -71,6 +95,15 @@ function Layout({ children }) {
         </div>
 
         <div className="nav-right">
+          <button
+            type="button"
+            className="icon-button"
+            aria-label={theme === "dark" ? "Wechsel zu Light Mode" : "Wechsel zu Dark Mode"}
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
+
           <select
             className="btn"
             value={locale}
@@ -105,7 +138,7 @@ function Layout({ children }) {
       </nav>
 
       {/* SEITENINHALT */}
-      {children}
+      <React.Suspense fallback={<LoadingScreen />}>{children}</React.Suspense>
 
       {/* FOOTER */}
       <footer className="footer">

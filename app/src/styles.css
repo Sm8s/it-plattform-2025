@@ -891,3 +891,96 @@ select:focus {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* ===========================================
+   Theme (Dark / Light)
+=========================================== */
+
+body.theme-light {
+  background: radial-gradient(circle at top, #e5e7eb 0, #f9fafb 45%, #e5e7eb 100%);
+  color: #020617;
+}
+
+body.theme-light .app-shell {
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(226,232,240,0.9));
+}
+
+body.theme-light nav {
+  background: rgba(255,255,255,0.9);
+  border-bottom-color: rgba(148,163,184,.35);
+}
+
+body.theme-light .nav-logo a {
+  color: #0f172a;
+}
+
+body.theme-light .nav-links a {
+  color: #1f2933;
+}
+
+body.theme-light .nav-links a:hover {
+  background: rgba(148,163,184,0.15);
+}
+
+body.theme-light .btn {
+  background: linear-gradient(135deg, #0f766e, #22c55e);
+  color: #ecfdf3;
+  border-color: transparent;
+}
+
+body.theme-light .btn:hover {
+  filter: brightness(1.03);
+}
+
+body.theme-light .card,
+body.theme-light .landing-card {
+  background: rgba(255,255,255,0.92);
+  color: #0f172a;
+  box-shadow: 0 22px 60px rgba(15,23,42,0.10);
+  border-color: rgba(148,163,184,0.35);
+}
+
+body.theme-light .card-header,
+body.theme-light .landing-hero {
+  background: radial-gradient(circle at top left, #e0f2fe 0, #f1f5f9 50%, #ffffff 100%);
+}
+
+body.theme-light .badge {
+  background: rgba(15,23,42,0.06);
+  color: #0f172a;
+}
+
+body.theme-light .footer {
+  background: rgba(255,255,255,0.92);
+  border-top-color: rgba(148,163,184,0.45);
+}
+
+/* Icon-Button für Theme-Toggle */
+.icon-button {
+  border: none;
+  border-radius: 999px;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: .75rem;
+  background: radial-gradient(circle at top left, rgba(56,189,248,0.18), rgba(15,23,42,0.95));
+  color: #e5e7eb;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(15,23,42,0.55);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
+}
+
+.icon-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 40px rgba(15,23,42,0.65);
+  opacity: .95;
+}
+
+body.theme-light .icon-button {
+  background: radial-gradient(circle at top left, rgba(56,189,248,0.22), rgba(15,23,42,0.10));
+  color: #0f172a;
+  box-shadow: 0 8px 24px rgba(148,163,184,0.60);
+}
