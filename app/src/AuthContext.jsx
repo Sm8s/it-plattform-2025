@@ -13,7 +13,6 @@ export function AuthProvider({ children }) {
     const currentLocale = navigator.language?.startsWith("de") ? "de" : "en";
     setLocale(currentLocale);
 
-    // Wenn Supabase nicht konfiguriert ist, einfach als "nicht eingeloggt"
     if (!supabase) {
       setLoading(false);
       return;
@@ -45,6 +44,7 @@ export function AuthProvider({ children }) {
         setProfile(null);
         return;
       }
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -53,6 +53,7 @@ export function AuthProvider({ children }) {
 
       if (!error) setProfile(data);
     };
+
     loadProfile();
   }, [session]);
 

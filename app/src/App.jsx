@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabaseClient";
 
-// Seiten
 import DashboardPage from "./pages/DashboardPage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
@@ -89,6 +88,7 @@ function Layout({ children }) {
               <button
                 className="btn"
                 onClick={async () => {
+                  if (!supabase) return;
                   await supabase.auth.signOut();
                   window.location.href = "/";
                 }}
