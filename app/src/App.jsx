@@ -45,18 +45,21 @@ function Layout({ children }) {
     <div>
       {/* NAV */}
       <nav className="nav">
-        <div className="nav-logo">
-          <Link to={session ? "/dashboard" : "/"}>IT Lernplattform</Link>
-        </div>
+        <div className="nav-left">
+          <div className="nav-logo">
+            <Link to={session ? "/dashboard" : "/"}>IT Lernplattform</Link>
+          </div>
 
-        <div className="nav-center">
           {session && (
-            <>
+            <div className="nav-links">
               <Link to="/dashboard">Dashboard</Link>
               <Link to="/courses">Kurse</Link>
               <Link to="/projects">Projekte</Link>
               <Link to="/community">Community</Link>
-            </>
+              {session?.user?.user_metadata?.is_owner && (
+                <Link to="/admin">Admin</Link>
+              )}
+            </div>
           )}
         </div>
 
