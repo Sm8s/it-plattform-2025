@@ -55,19 +55,19 @@ function Layout({ children }) {
   return (
     <div className="app-shell">
       {/* NAVBAR */}
-      <nav className="nav">
-        <div className="nav-logo">
-          <Link to={session ? "/dashboard" : "/"}>IT Lernplattform</Link>
-        </div>
+      <nav>
+        <div className="nav-left">
+          <div className="nav-logo">
+            <Link to={session ? "/dashboard" : "/"}>IT Lernplattform</Link>
+          </div>
 
-        <div className="nav-center">
           {session && (
-            <>
+            <div className="nav-links">
               <Link to="/dashboard">Dashboard</Link>
               <Link to="/courses">Kurse</Link>
               <Link to="/projects">Projekte</Link>
               <Link to="/community">Community</Link>
-            </>
+            </div>
           )}
         </div>
 
@@ -118,7 +118,7 @@ function Layout({ children }) {
 /* -------------------------------------------
    App-Komponente
 ------------------------------------------- */
-export default function App() {
+function App() {
   return (
     <Layout>
       <Routes>
@@ -218,9 +218,11 @@ export default function App() {
           }
         />
 
-        {/* Fallback – unbekannte URL */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
   );
 }
+
+export default App;
